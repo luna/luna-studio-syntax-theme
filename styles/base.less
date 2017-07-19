@@ -1,0 +1,111 @@
+@import "syntax-variables";
+
+atom-text-editor {
+  background-color: @editor-background;
+  color: @syntax-text-color;
+
+  .wrap-guide {
+    background-color: @syntax-wrap-guide-color;
+  }
+
+  .indent-guide {
+    color: @syntax-indent-guide-color;
+  }
+
+  .invisible-character {
+    color: @syntax-invisible-character-color;
+  }
+
+  .gutter {
+    background-color: @syntax-gutter-background-color;
+    color: @syntax-gutter-text-color;
+
+    .line-number {
+      &.cursor-line {
+        background-color: @syntax-gutter-background-color-selected;
+        color: @syntax-gutter-text-color-selected;
+      }
+
+      &.cursor-line-no-selection {
+        color: @syntax-gutter-text-color-selected;
+      }
+    }
+  }
+
+  .gutter .line-number.folded,
+  .gutter .line-number:after,
+  .fold-marker:after {
+    color: @light-gray;
+  }
+
+  .invisible {
+    color: @syntax-text-color;
+  }
+
+  .cursor {
+    color: @syntax-cursor-color;
+  }
+
+  .selection .region {
+    background-color: @syntax-selection-color;
+  }
+}
+
+
+// Syntax styles
+
+@standard-color:    hsl(0, 0%, 70%);
+@operator-color:    hsl(0, 0%, 50%);
+@secondary-color:   hsl(0, 0%, 30%);
+@number-color:      hsl(207, 30%, 62%);
+@str-color:         hsl(33, 62%, 60%); //hsl(63, 44%, 64%);
+@str-escape:        hsl(33, 62%, 40%);
+@definition-color:  hsl(0, 55%, 60%);
+@constructor-color: hsl(0, 55%, 60%); // hsl(24, 65%, 62%);
+@sequence-color:    @operator-color;
+@comment-color:     hsl(0, 0%, 30%);
+
+.syntax--none                            { color: @syntax-text-color ;}
+.syntax--comment                         { color: @comment-color     ;}
+.syntax--variable                        { color: @standard-color    ;
+  &.syntax--constructor                  { color: @constructor-color ;}
+  &.syntax--wildcard                     { color: @constructor-color ;}}
+
+.syntax--keyword                         { color: @definition-color;
+  &.syntax--control                      { color: @definition-color  ;}
+  &.syntax--operator                     { color: @operator-color    ;}
+  &.syntax--operator.syntax--accessor    { color: @constructor-color ;}
+  &.syntax--operator.syntax--assignment  { color: @secondary-color   ;}
+  &.syntax--operator.syntax--range       { color: @sequence-color    ;}
+  &.syntax--definition                   { color: @definition-color  ;}}
+
+.syntax--entity {
+  &.lambda                               { color: @definition-color  ;}
+  &.syntax--group                        { color: @secondary-color   ;}}
+
+.syntax--constant { color: @orange;
+  &.syntax--numeric                      { color: @number-color      ;}
+  &.syntax--list                         { color: @sequence-color    ;}
+  &.syntax--character.syntax--escape     { color: @str-escape        ;}}
+
+.syntax--string                          { color: @str-color;
+  &.syntax--escape                       { color: @str-escape ;}}
+
+.syntax--storage { color: @purple ;}
+
+.syntax--invalid.syntax--illegal {
+    background-color: @red;
+    color: @syntax-background-color;
+  }
+
+.syntax--punctuation {}
+.syntax--support     {}
+.syntax--meta        {}
+.syntax--markup      {}
+
+
+// Mini editor
+
+atom-text-editor[mini] .scroll-view {
+  padding-left: 1px;
+}
