@@ -1,5 +1,10 @@
 // These colors are specific to the theme. Do not use in a package!
 
+// @import "generated-globals.less";
+@import "generated/globals.less";
+
+
+
 @very-light-gray: #c5c8c6;
 @light-gray: #969896;
 @gray: #373b41;
@@ -15,7 +20,8 @@
 @light-orange: #f0c674;
 
 
-@base-accent: darken(hsv(30, 4%, 15.5%), 9%);
+// @base-accent: darken(hsv(30, 4%, 15.5%), 9%);
+@base-accent: @cfg-bg-color;
 
 
 // @editor-background: @base-accent;
