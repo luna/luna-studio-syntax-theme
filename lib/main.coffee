@@ -1,6 +1,9 @@
 fs   = require 'fs'
 path = require 'path'
+packageName = require('../package.json').name
 
+
+id = (a) => a
 
 mimicDevMode = (f) =>
   atom.devMode = true
@@ -8,7 +11,8 @@ mimicDevMode = (f) =>
   atom.devMode = false
   return out
 
-# TODO: We cannot use it unless we patch SettingsView to include name of the package in CSS class.
+# TODO: We could use such trick to hide unnecesary settings (like custom color unless "custom" option is chosen).
+#       We cannot use it unless we patch SettingsView to include name of the package in CSS class.
 #       Then we would be able to hide unnecessary options.
 # createGlobalStylesheet = () ->
 #   head       = document.head
@@ -18,6 +22,7 @@ mimicDevMode = (f) =>
 #   style.appendChild node
 #   head.appendChild  style
 #   node
+
 
 module.exports =
 
@@ -57,21 +62,53 @@ module.exports =
     # If everything is up to date or just reloaded it has a very small time overhead
     @reloadAllStyles()
 
-  activate: (state) ->
-    @packageName = require('../package.json').name
+  #updateBgColor: () -> @updateCustomizableCfg 'background', ((val) -> 'rgb(' + val.red + ',' + val.green + ',' + val.blue + ')'), ((val) -> 'hsl(30, 4%, ' + val + '%)')
+   updateBgColor: () ->
+     val    = atom.config.get(packageName + '.backgroundColor')
+     cval   = atom.config.get(packageName + '.customBackgroundColor')
+     genVal = null
+     if val == 'custom'
+       genVal = 'rgb(' + cval.red + ',' + cval.green + ',' + cval.blue + ')'
+     else
+       genVal = 'hsl(30, 4%, ' + val + '%)'
+     if @configCache.backgroundColor != genVal
+       @configCache.backgroundColor = genVal
+       @refreshTheme()
 
+  updateContrast: () ->
+    val    = atom.config.get(packageName + '.contrast')
+    cval   = atom.config.get(packageName + '.customContrast')
+    genVal = null
+    if val == 'custom'
+      genVal = cval.toString()
+    else
+      genVal = val
+    if @configCache.contrast != genVal
+      @configCache.contrast = genVal
+      @refreshTheme()
+
+  updateCustomizableCfg: (name, cf, cn) ->
+    bigName = name.charAt(0).toUpperCase() + name.slice(1)
+    val     = atom.config.get(packageName + '.' + name)
+    cval    = atom.config.get(packageName + '.custom' + bigName)
+    genVal  = null
+    if val == 'custom'
+      genVal = cf cval.toString()
+    else
+      genVal = cn val
+    console.log bigName
+    console.log val
+    console.log cval
+    console.log genVal
+    # if @configCache[name] != genVal
+    #   @configCache[name] = genVal
+    #   @refreshTheme()
+
+  activate: (state) ->
     @configCache = {}
 
-    atom.config.observe (@packageName + '.backgroundColor'), (value) =>
-      color = null
-      if value == 'custom'
-        cc    = atom.config.settings[@packageName].customBackgroundColor
-        color = 'rgb(' + cc.red + ',' + cc.green + ',' + cc.blue + ')'
-      else
-        color = 'hsl(30, 4%, ' + value + '%)'
-      if @configCache.backgroundColor != color
-        @configCache.backgroundColor = color
-        @refreshTheme()
+    atom.config.observe (packageName + '.backgroundColor')       , @updateBgColor.bind @
+    atom.config.observe (packageName + '.customBackgroundColor') , @updateBgColor.bind @
 
     # atom.packages.activatePackage('dev-live-reload').then (devLiveReloadPkg) =>
     @enableReloader()
@@ -79,8 +116,8 @@ module.exports =
 
   config:
     backgroundColor:
-      description: 'Changing background color could take several seconds, depending on how powerful machine you are currently running is. It is an exported variable and could be used by any other package and theme, so all styles need to be reloaded.'
       order   : 1
+      description: 'WARNING: Changing this option could take several seconds, depending on how powerful the machine you are currently running is. It is an exported variable and could be used by any other package, so all already loaded styles have to be reloaded.'
       type    : 'string'
       default : '7'
       enum    : [
@@ -97,3 +134,22 @@ module.exports =
       order   : 2
       type    : 'color'
       default : 'black'
+
+    contrast:
+      description: 'Contrast of theme elements. Increasing this value would make the theme more readable in bright environment, but will also make your eyes hurt more in darker environment.'
+      order   : 3
+      type    : 'string'
+      default : 'auto'
+      enum    : [
+        {value: 'auto'   , description: 'Automatic, depending on the theme\'s lightness'}
+        {value: '0.7'    , description: 'Very Slight'}
+        {value: '0.9'    , description: 'Slight'}
+        {value: '1.0'    , description: 'Normal'}
+        {value: '1.3'    , description: 'Strong'}
+        {value: '2.0'    , description: 'Very Strong'}
+        {value: 'custom' , description: 'Custom'}
+      ]
+    customContrast:
+      order   : 4
+      type    : 'number'
+      default : 1.0
