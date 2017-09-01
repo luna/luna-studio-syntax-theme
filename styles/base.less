@@ -1,4 +1,5 @@
 @import "syntax-variables";
+@import "generated/globals";
 
 atom-text-editor {
   background-color: @editor-background;
@@ -54,20 +55,51 @@ atom-text-editor {
 
 // Syntax styles
 
-@standard-color:    hsl(0, 0%, 70%);
-@operator-color:    hsl(0, 0%, 50%);
-@secondary-color:   hsl(0, 0%, 30%);
-@number-color:      hsl(207, 30%, 62%);
-@str-color:         hsl(33, 62%, 60%); //hsl(63, 44%, 64%);
-@str-escape:        hsl(33, 62%, 40%);
-@definition-color:  hsl(0, 55%, 60%);
-@constructor-color: hsl(0, 55%, 60%); // hsl(24, 65%, 62%);
-@sequence-color:    @operator-color;
-@comment-color:     hsl(0, 0%, 30%);
+// .cfg-col() when (@cfg-contrast = "auto") { @contrast-alpha: 1 + lightness(@syntax-background-color) / 100%}
+
+
+.cfg-col(@cd) when (default())            { @out: @cd; }
+.cfg-col(@cd) when (@cfg-adaptive-colors) {
+  // @bgVal: hsvvalue(@syntax-background-color);
+  // @cdVal: hsvvalue(@cd);
+  @diffVal: hsvvalue(@cd) - hsvvalue(@syntax-background-color);
+
+  // @out: hsva(hue(@cd), hsvsaturation(@cd), 100%, @diffVal * @contrast-alpha);
+  // @out: mix(hsv(hue(@cd), hsvsaturation(@cd), 100%), @syntax-background-color, @diffVal);
+  @out: mix(hsv(hue(@cd), hsvsaturation(@cd), 100%), @syntax-background-color, @diffVal * @contrast-alpha);
+}
+
+.base-color()          {@base-color          : @out; .cfg-col(@cfg-base-color)          ;}; .base-color();
+.operator-color()      {@operator-color      : @out; .cfg-col(@cfg-operator-color)      ;}; .operator-color();
+.secondary-color()     {@secondary-color     : @out; .cfg-col(@cfg-secondary-color)     ;}; .secondary-color();
+.number-color()        {@number-color        : @out; .cfg-col(@cfg-number-color)        ;}; .number-color();
+.string-color()        {@string-color        : @out; .cfg-col(@cfg-string-color)        ;}; .string-color();
+.string-escape-color() {@string-escape-color : @out; .cfg-col(@cfg-string-escape-color) ;}; .string-escape-color();
+.definition-color()    {@definition-color    : @out; .cfg-col(@cfg-definition-color)    ;}; .definition-color();
+.constructor-color()   {@constructor-color   : @out; .cfg-col(@cfg-constructor-color)   ;}; .constructor-color();
+.comment-color()       {@comment-color       : @out; .cfg-col(@cfg-comment-color)       ;}; .comment-color();
+.sequence-color()      {@sequence-color      : @out; .cfg-col(@cfg-sequence-color)      ;}; .sequence-color();
+
+// .cfg-col(@cfg-string-color)        ; @string-color        : @out;
+// .cfg-col(@cfg-string-escape-color) ; @string-escape-color : @out;
+// .cfg-col(@cfg-definition-color)    ; @definition-color    : @out;
+// .cfg-col(@cfg-constructor-color)   ; @constructor-color   : @out;
+// .cfg-col(@cfg-comment-color)       ; @comment-color       : @out;
+// .cfg-col(@cfg-sequence-color)      ; @sequence-color      : @out;
+// @base-color:          hsva(0  , 0% , 100%, 70% * @contrast-alpha);
+// @operator-color:      hsva(0  , 0% , 100%, 50% * @contrast-alpha);
+// @secondary-color:     hsva(0  , 0% , 100%, 30% * @contrast-alpha);
+// // @number-color:        hsva(207, 30%, 100%, 62% * @contrast-alpha);
+// @string-color:        hsva(33 , 62%, 100%, 60% * @contrast-alpha); //hsl(63, 44%, 64%);
+// @string-escape-color: hsva(33 , 62%, 100%, 40% * @contrast-alpha);
+// @definition-color:    hsva(0  , 55%, 100%, 60% * @contrast-alpha);
+// @constructor-color:   hsva(0  , 55%, 100%, 60% * @contrast-alpha); // hsl(24, 65%, 62%);
+// @comment-color:       hsva(0  , 0% , 100%, 30% * @contrast-alpha);
+// @sequence-color:      @operator-color;
 
 .syntax--none                            { color: @syntax-text-color ;}
 .syntax--comment                         { color: @comment-color     ;}
-.syntax--variable                        { color: @standard-color    ;
+.syntax--variable                        { color: @base-color        ;
   &.syntax--constructor                  { color: @constructor-color ;}
   &.syntax--wildcard                     { color: @constructor-color ;}}
 
@@ -86,10 +118,10 @@ atom-text-editor {
 .syntax--constant { color: @orange;
   &.syntax--numeric                      { color: @number-color      ;}
   &.syntax--list                         { color: @sequence-color    ;}
-  &.syntax--character.syntax--escape     { color: @str-escape        ;}}
+  &.syntax--character.syntax--escape     { color: @string-escape-color        ;}}
 
-.syntax--string                          { color: @str-color;
-  &.syntax--escape                       { color: @str-escape ;}}
+.syntax--string                          { color: @string-color;
+  &.syntax--escape                       { color: @string-escape-color ;}}
 
 .syntax--storage { color: @purple ;}
 
